@@ -72,6 +72,6 @@ jobs:
           semgrep scan --config auto --json --output semgrep-report.json || true
       # Upload the results of the scan as a GitHub Actions artifact.
       - name: Upload semgrep report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: semgrep-report   
