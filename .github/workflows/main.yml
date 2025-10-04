@@ -23,9 +23,10 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    
+      - uses: actions/checkout@v4
       # Runs a single command using the runners shell
       - name: Clone github repository
-        uses: actions/checkout@v4
         run: |
           git clone $URL --branch $BRANCH
         env:
@@ -55,7 +56,6 @@ jobs:
 
     steps:
       # Fetch project source with GitHub Actions Checkout. Use either v3 or v4.
-     
       - name: Get cloned repo   
         uses: actions/checkout@v4
         with:
