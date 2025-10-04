@@ -7,12 +7,14 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
     inputs:
+      name:
+        description: "Application name"
+        required: true
       url:
         description: "Repository url"
         required: true
       branch:
         description: "Repository branch"
-        default: "main"
         required: true
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -23,21 +25,21 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    
-      - uses: actions/checkout@v4
+  
       # Runs a single command using the runners shell
       - name: Clone github repository
         run: |
-          git clone $URL --branch $BRANCH
+          git clone $URL --branch $BRANCH --single-branch $NAME
         env:
+          NAME: ${{ inputs.name }}
           URL: ${{ inputs.url }}
           BRANCH: ${{ inputs.branch }}
       
       - name: Upload repository as artifact
-        uses: actions/checkout@v4
+        uses: actions/upload-artifact@v3
         with:
-          name: cloned-repo
-          path: cloned-repo
+          name: ${{ inputs.name }}
+          path: ${{ inputs.name }}
           
   semgrep:
     # User definable name of this GitHub Actions job.
@@ -59,9 +61,17 @@ jobs:
       - name: Get cloned repo   
         uses: actions/checkout@v4
         with:
-          name: cloned-repo
-          path: cloned-repo
+          name: ${{ inputs.name }}
+          path: ${{ inputs.name }}
       
       - name: Run scan
       # Run the "semgrep scan" command on the command line of the docker image.
-        run: semgrep scan --config auto
+        run: |
+          ls -la
+          cd ${{ inputs.name }}
+          semgrep scan --config auto --json --output semgrep-report.json || true
+      # Upload the results of the scan as a GitHub Actions artifact.
+      - name: Upload semgrep report
+        uses: actions/upload-artifact@v3
+        with:
+          name: semgrep-report   
